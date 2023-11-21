@@ -48,7 +48,7 @@ const StationDetails = () => {
       setStationDetails(response);
       setInitialData(response);
     } catch (error) {
-      setErrorMessage(error.message)
+      setErrorMessage(error.message);
     } finally {
       setIsLoading(false);
     }
