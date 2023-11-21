@@ -15,21 +15,12 @@ const StationDetails = () => {
   const { stationId } = useParams();
   const [allLocations, setAllLocations] = useState([]);
   const [initialData, setInitialData] = useState({});
+  const [errorMessage, setErrorMessage] = useState(null);
   const navigate = useNavigate();
 
-  const fetchData = async () => {
-    setIsLoading(true);
-    const response = await getStationDetails(stationId);
-    const locations = await getAllLocations();
-    const activeLocations = locations.filter(
-      (location) => location.status == "ACTIVE"
-    );
-
-    setAllLocations(activeLocations);
-    setIsLoading(false);
-    setStationDetails(response);
-    setInitialData(response);
-  };
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   useEffect(() => {
     // Update dirtyFields whenever userDetails changes
@@ -42,11 +33,25 @@ const StationDetails = () => {
     setDirtyFields(changes);
   }, [stationDetails, initialData]);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
   const handleCancel = () => {
     navigate("/system-config/stations");
+  };
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const response = await getStationDetails(stationId);
+      const locations = await getAllLocations();
+      const activeLocations = locations.filter(
+        (location) => location.status == "ACTIVE"
+      );
+      setAllLocations(activeLocations);
+      setStationDetails(response);
+      setInitialData(response);
+    } catch (error) {
+      setErrorMessage(error.message)
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSubmit = async (event) => {

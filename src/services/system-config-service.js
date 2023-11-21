@@ -15,8 +15,7 @@ export const addStation = async (newStation) => {
     const response = await axios.post(`${BASE_URL}/stations`, newStation);
     return response.data;
   } catch (error) {
-    console.error({ layer: "SYSTEM-CONFIG-SERVICE", error: error.message });
-    return {};
+    throw new Error("Unable to Add Station");
   }
 };
 

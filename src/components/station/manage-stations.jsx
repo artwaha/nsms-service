@@ -6,23 +6,33 @@ import { getAllStations } from "../../services/system-config-service";
 const ManageStations = () => {
   const [allStations, setAllStations] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const fetchData = async () => {
     setIsLoading(true);
-    const stations = await getAllStations();
-    // console.log(stations);
-    setIsLoading(false);
-    setAllStations(stations);
+    try {
+      const stations = await getAllStations();
+      setAllStations(stations);
+    } catch (error) {
+      setErrorMessage(error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRetry = () => {
+    setErrorMessage(null);
+    fetchData();
   };
 
   const handleCancel = () => {
     navigate("/system-config");
   };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
 
   return (
     <div>
@@ -44,6 +54,13 @@ const ManageStations = () => {
       </div>
       {isLoading ? (
         <h1>Loading...</h1>
+      ) : errorMessage ? (
+        <div className="text-red-600">
+          {errorMessage}
+          <button onClick={handleRetry} className="text-blue-600 ml-2">
+            Retry
+          </button>
+        </div>
       ) : (
         <table>
           <thead>
