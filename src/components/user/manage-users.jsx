@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import Seo from "../../layout/seo";
 import { Link, useNavigate } from "react-router-dom";
+import Seo from "../../layout/seo";
 import { getAllUsers } from "../../services/user-service";
 
 const ManageUsers = () => {
@@ -8,6 +8,10 @@ const ManageUsers = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -29,10 +33,6 @@ const ManageUsers = () => {
   const handleCancel = () => {
     navigate("/system-config");
   };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
 
   return (
     <div>

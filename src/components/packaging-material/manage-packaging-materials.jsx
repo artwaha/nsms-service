@@ -1,30 +1,37 @@
 import React, { useEffect, useState } from "react";
-import Seo from "../../layout/seo";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  deleteRoles,
-  getAllPackagingMaterials,
-  getAllRoles,
-} from "../../services/system-config-service";
+import Seo from "../../layout/seo";
+import { getAllPackagingMaterials } from "../../services/system-config-service";
 
 const ManagePackagingMaterials = () => {
   const [allPackagingMaterials, setAllPackagingMaterials] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState(null);
   const navigate = useNavigate();
-
-  const fetchData = async () => {
-    setIsLoading(true);
-    const packagingMaterials = await getAllPackagingMaterials();
-    setIsLoading(false);
-    setAllPackagingMaterials(packagingMaterials);
-  };
 
   useEffect(() => {
     fetchData();
   }, []);
 
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const packagingMaterials = await getAllPackagingMaterials();
+      setAllPackagingMaterials(packagingMaterials);
+    } catch (error) {
+      setErrorMessage(error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleCancel = () => {
     navigate("/system-config");
+  };
+
+  const handleRetry = () => {
+    setErrorMessage(null);
+    fetchData();
   };
 
   return (
@@ -33,10 +40,13 @@ const ManagePackagingMaterials = () => {
       <h1 className="text-xl text-green-700 mb-2">Packaging Materials</h1>
       <div className="flex items-center mb-4">
         <div>
-          <label className=" font-semibold">Search: </label>
+          <label htmlFor="search" className=" font-semibold">
+            Search:{" "}
+          </label>
           <input
             type="search"
             name="search"
+            id="search"
             placeholder="type to search..."
             className="outline-none border p-1 w-fit"
           />
@@ -47,6 +57,13 @@ const ManagePackagingMaterials = () => {
       </div>
       {isLoading ? (
         <h1>Loading...</h1>
+      ) : errorMessage ? (
+        <div className="text-red-600">
+          {errorMessage}
+          <button onClick={handleRetry} className="text-blue-600 ml-2">
+            Retry
+          </button>
+        </div>
       ) : (
         <table>
           <thead>

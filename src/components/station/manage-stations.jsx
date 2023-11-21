@@ -40,10 +40,13 @@ const ManageStations = () => {
       <h1 className="text-xl text-green-700 mb-2">Service Points</h1>
       <div className="flex items-center mb-4">
         <div>
-          <label className=" font-semibold">Search: </label>
+          <label htmlFor="search" className=" font-semibold">
+            Search:{" "}
+          </label>
           <input
             type="search"
             name="search"
+            id="search"
             placeholder="type to search..."
             className="outline-none border p-1 w-fit"
           />

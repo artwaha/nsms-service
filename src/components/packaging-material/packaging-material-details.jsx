@@ -13,15 +13,12 @@ const PackagingMaterialDetails = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { packagingMaterialId } = useParams();
   const [initialData, setInitialData] = useState({});
+  const [errorMessage, setErrorMessage] = useState(null);
   const navigate = useNavigate();
 
-  const fetchData = async () => {
-    setIsLoading(true);
-    const response = await getPackagingMaterialDetails(packagingMaterialId);
-    setIsLoading(false);
-    setPackagingMaterialDetails(response);
-    setInitialData(response);
-  };
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   useEffect(() => {
     // Update dirtyFields whenever userDetails changes
@@ -38,48 +35,65 @@ const PackagingMaterialDetails = () => {
     setDirtyFields(changes);
   }, [packagingMaterialDetails, initialData]);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-  const handleCancel = () => {
-    navigate("/system-config/packaging-materials");
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const response = await getPackagingMaterialDetails(packagingMaterialId);
+      setPackagingMaterialDetails(response);
+      setInitialData(response);
+    } catch (error) {
+      setErrorMessage(error.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (!Object.keys(dirtyFields).length) {
-      alert("Unable to save changes, nothing changed!");
-    } else {
-      if (dirtyFields.name == "" && !dirtyFields.minimumStockThreshold) {
-        alert(
-          "Packaging Material Name and Minimum Stock Threshold cant be empty"
-        );
-      } else if (dirtyFields.name == "") {
-        alert("Invalid Packaging Material Name");
-      } else if (dirtyFields.minimumStockThreshold <= 0) {
-        alert("Invalid Minimum Stock Threshold");
+    try {
+      if (!Object.keys(dirtyFields).length) {
+        alert("Unable to save changes, nothing changed!");
       } else {
-        await updatePackagingMaterialDetails({
-          ...dirtyFields,
-          id: packagingMaterialId,
-        });
-        fetchData();
-        // console.log(dirtyFields);
+        if (dirtyFields.name == "" && !dirtyFields.minimumStockThreshold) {
+          alert(
+            "Packaging Material Name and Minimum Stock Threshold cant be empty"
+          );
+        } else if (dirtyFields.name == "") {
+          alert("Invalid Packaging Material Name");
+        } else if (dirtyFields.minimumStockThreshold <= 0) {
+          alert("Invalid Minimum Stock Threshold");
+        } else {
+          await updatePackagingMaterialDetails({
+            ...dirtyFields,
+            id: packagingMaterialId,
+          });
+          fetchData();
+        }
       }
+    } catch (error) {
+      alert(error.message);
     }
   };
 
   const handleRemove = async () => {
-    const isConfirmed = window.confirm(
-      "Are you sure you want to completely Delete this packaging material?"
-    );
+    try {
+      const isConfirmed = window.confirm(
+        "Are you sure you want to completely Delete this packaging material?"
+      );
 
-    if (isConfirmed) {
-      // Delete logic goes here
-      const response = await deletePackagingMaterial(packagingMaterialId);
-      navigate("/system-config/packaging-materials");
-      alert(response);
+      if (isConfirmed) {
+        // Delete logic goes here
+        const response = await deletePackagingMaterial(packagingMaterialId);
+        navigate("/system-config/packaging-materials");
+        alert(response);
+      }
+    } catch (error) {
+      alert(error.message);
     }
+  };
+
+  const handleCancel = () => {
+    navigate("/system-config/packaging-materials");
   };
 
   const handleChange = (event) => {
@@ -96,6 +110,11 @@ const PackagingMaterialDetails = () => {
     }));
   };
 
+  const handleRetry = () => {
+    setErrorMessage(null);
+    fetchData();
+  };
+
   return (
     <div>
       <Seo
@@ -107,35 +126,50 @@ const PackagingMaterialDetails = () => {
       </h1>
       {isLoading ? (
         <h1>Loading...</h1>
-      ) : Object.keys(packagingMaterialDetails).length === 0 ? (
-        <h1 className="text-red-600">Packaging Material details not found</h1>
+      ) : errorMessage ? (
+        <div className="text-red-600">
+          {errorMessage}
+          <button onClick={handleRetry} className="text-blue-600 ml-2">
+            Retry
+          </button>
+        </div>
       ) : (
         <form className="flex flex-col" onSubmit={handleSubmit}>
           <div>
-            <label className=" font-semibold">Packaging Material Name: </label>
+            <label htmlFor="name" className=" font-semibold">
+              Packaging Material Name:{" "}
+            </label>
             <input
+              autoComplete="on"
               defaultValue={packagingMaterialDetails.name}
               name="name"
+              id="name"
               className="outline-none border p-1 mb-2 w-fit"
               onChange={handleChange}
             />
           </div>
 
           <div>
-            <label className="font-semibold">Minimum Stock Threshold: </label>
+            <label htmlFor="minimumStockThreshold" className="font-semibold">
+              Minimum Stock Threshold:{" "}
+            </label>
             <input
               defaultValue={packagingMaterialDetails.minimumStockThreshold}
               type="number"
               name="minimumStockThreshold"
+              id="minimumStockThreshold"
               className="outline-none border p-1 mb-2 w-fit"
               onChange={handleChange}
             />
           </div>
           <div>
-            <label className=" font-semibold">Status: </label>
+            <label htmlFor="status" className=" font-semibold">
+              Status:{" "}
+            </label>
             <select
               defaultValue={packagingMaterialDetails.status}
               name="status"
+              id="status"
               className="border p-1 outline-none  w-fit mb-2"
               onChange={handleChange}
             >

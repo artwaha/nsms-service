@@ -36,6 +36,7 @@ const StationDetails = () => {
   const handleCancel = () => {
     navigate("/system-config/stations");
   };
+
   const fetchData = async () => {
     setIsLoading(true);
     try {
@@ -56,38 +57,51 @@ const StationDetails = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (!Object.keys(dirtyFields).length) {
-      alert("Unable to save changes, nothing changed!");
-    } else {
-      if (dirtyFields.name == "" && dirtyFields.location === "-") {
-        alert("Invalid Station and Location names");
-      } else if (dirtyFields.name == "") {
-        alert("Invalid Station Name");
-      } else if (dirtyFields.location === "-") {
-        alert("Invalid Location Name");
+    try {
+      if (!Object.keys(dirtyFields).length) {
+        alert("Unable to save changes, nothing changed!");
       } else {
-        if (dirtyFields.location) {
-          dirtyFields.location = allLocations.find(
-            (location) => location.name == dirtyFields.location
-          ).id;
+        if (dirtyFields.name == "" && dirtyFields.location === "-") {
+          alert("Invalid Station and Location names");
+        } else if (dirtyFields.name == "") {
+          alert("Invalid Station Name");
+        } else if (dirtyFields.location === "-") {
+          alert("Invalid Location Name");
+        } else {
+          if (dirtyFields.location) {
+            dirtyFields.location = allLocations.find(
+              (location) => location.name == dirtyFields.location
+            ).id;
+          }
+          await updateStation({ ...dirtyFields, id: stationId });
+          fetchData();
         }
-        await updateStation({ ...dirtyFields, id: stationId });
-        fetchData();
       }
+    } catch (error) {
+      alert(error.message);
     }
   };
 
   const handleRemove = async () => {
-    const isConfirmed = window.confirm(
-      "Are you sure you want to completely Delete this Station?"
-    );
+    try {
+      const isConfirmed = window.confirm(
+        "Are you sure you want to completely Delete this Station?"
+      );
 
-    if (isConfirmed) {
-      // Delete logic goes here
-      const response = await deleteStation(stationId);
-      navigate("/system-config/stations");
-      alert(response);
+      if (isConfirmed) {
+        // Delete logic goes here
+        const response = await deleteStation(stationId);
+        navigate("/system-config/stations");
+        alert(response);
+      }
+    } catch (error) {
+      alert(error.message);
     }
+  };
+
+  const handleRetry = () => {
+    setErrorMessage(null);
+    fetchData();
   };
 
   const handleChange = (event) => {
@@ -101,25 +115,37 @@ const StationDetails = () => {
       <h1 className="text-xl text-green-700 mb-2">Service Point Details</h1>
       {isLoading ? (
         <h1>Loading...</h1>
-      ) : Object.keys(stationDetails).length === 0 ? (
-        <h1 className="text-red-600">Station details not found</h1>
+      ) : errorMessage ? (
+        <div className="text-red-600">
+          {errorMessage}
+          <button onClick={handleRetry} className="text-blue-600 ml-2">
+            Retry
+          </button>
+        </div>
       ) : (
         <form className="flex flex-col" onSubmit={handleSubmit}>
           <div>
-            <label className="font-semibold">Location Name: </label>
+            <label htmlFor="name" className="font-semibold">
+              Location Name:{" "}
+            </label>
             <input
               defaultValue={stationDetails.name}
               name="name"
+              id="name"
+              autoComplete="on"
               className="outline-none border p-1 mb-2 w-fit"
               onChange={handleChange}
             />
           </div>
 
           <div>
-            <label className=" font-semibold">Location: </label>
+            <label htmlFor="location" className=" font-semibold">
+              Location:{" "}
+            </label>
             <select
               defaultValue={stationDetails.location}
               name="location"
+              id="location"
               className="border p-1 outline-none  w-fit mb-2"
               onChange={handleChange}
             >
@@ -133,10 +159,13 @@ const StationDetails = () => {
           </div>
 
           <div>
-            <label className=" font-semibold">Status: </label>
+            <label htmlFor="status" className=" font-semibold">
+              Status:{" "}
+            </label>
             <select
               defaultValue={stationDetails.status}
               name="status"
+              id="status"
               className="border p-1 outline-none  w-fit mb-2"
               onChange={handleChange}
             >

@@ -16,22 +16,24 @@ const AddPackagingMaterial = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (!formData.name && !formData.minimumStockThreshold) {
-      alert("Packaging Material Name & Minimum Stock Threshold are Required");
-    } else if (!formData.name) {
-      alert("Packaging Material Name is Required");
-    } else if (!formData.minimumStockThreshold) {
-      alert("Minimum Stock Threshold is Required");
-    } else {
-      formData.minimumStockThreshold = parseInt(
-        formData.minimumStockThreshold,
-        10
-      );
-
-      const response = await addPackagingMaterials(formData);
-      console.log(response);
-      alert("Packaging Material Saved");
-      navigate("/system-config/packaging-materials");
+    try {
+      if (!formData.name && !formData.minimumStockThreshold) {
+        alert("Packaging Material Name & Minimum Stock Threshold are Required");
+      } else if (!formData.name) {
+        alert("Packaging Material Name is Required");
+      } else if (!formData.minimumStockThreshold) {
+        alert("Minimum Stock Threshold is Required");
+      } else {
+        formData.minimumStockThreshold = parseInt(
+          formData.minimumStockThreshold,
+          10
+        );
+        await addPackagingMaterials(formData);
+        alert("Packaging Material Saved");
+        navigate("/system-config/packaging-materials");
+      }
+    } catch (error) {
+      alert(error.message);
     }
   };
 
@@ -47,19 +49,26 @@ const AddPackagingMaterial = () => {
       <h1 className="text-xl text-green-700 mb-2">New Packaging Material</h1>
       <form className="flex flex-col" onSubmit={handleSubmit}>
         <div>
-          <label className=" font-semibold">Packaging Material Name: </label>
+          <label htmlFor="name" className=" font-semibold">
+            Packaging Material Name:{" "}
+          </label>
           <input
+            autoComplete="on"
             name="name"
+            id="name"
             className="outline-none border p-1 mb-2 w-fit"
             onChange={handleChange}
           />
         </div>
 
         <div>
-          <label className="font-semibold">Minimum Stock Threshold: </label>
+          <label htmlFor="minimumStockThreshold" className="font-semibold">
+            Minimum Stock Threshold:{" "}
+          </label>
           <input
             type="number"
             name="minimumStockThreshold"
+            id="minimumStockThreshold"
             className="outline-none border p-1 mb-2 w-fit"
             onChange={handleChange}
           />

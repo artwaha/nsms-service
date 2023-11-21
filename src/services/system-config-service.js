@@ -54,8 +54,7 @@ export const addPackagingMaterials = async (newPackagingMaterial) => {
     );
     return response.data;
   } catch (error) {
-    console.error({ layer: "SYSTEM-CONFIG-SERVICE", error: error.message });
-    return {};
+    throw new Error("Unable to add Packaging Material");
   }
 };
 
@@ -82,8 +81,7 @@ export const getStationDetails = async (stationId) => {
     const response = await axios.get(`${BASE_URL}/stations/${stationId}`);
     return response.data;
   } catch (error) {
-    console.error({ layer: "SYSTEM-CONFIG-SERVICE", error: error.message });
-    return {};
+    throw new Error("Unable to fetch Station details");
   }
 };
 
@@ -92,8 +90,7 @@ export const getAllPackagingMaterials = async () => {
     const response = await axios.get(`${BASE_URL}/packaging-materials`);
     return response.data;
   } catch (error) {
-    console.error({ layer: "SYSTEM-CONFIG-SERVICE", error: error.message });
-    return [];
+    throw new Error("Unable to fetch Packaging Materials");
   }
 };
 
@@ -115,8 +112,7 @@ export const deletePackagingMaterial = async (packagingMaterialId) => {
     );
     return response.data;
   } catch (error) {
-    console.error({ layer: "SYSTEM-CONFIG-SERVICE", error: error.message });
-    return "Failure";
+    throw new Error("Unable to Delete Packaging Material");
   }
 };
 
@@ -127,8 +123,7 @@ export const deleteStation = async (stationId) => {
     );
     return response.data;
   } catch (error) {
-    console.error({ layer: "SYSTEM-CONFIG-SERVICE", error: error.message });
-    return "Failure";
+    throw new Error("Unable to delete Station");
   }
 };
 
@@ -150,8 +145,7 @@ export const getPackagingMaterialDetails = async (packagingMaterialId) => {
     );
     return response.data;
   } catch (error) {
-    console.error({ layer: "SYSTEM-CONFIG-SERVICE", error: error.message });
-    return {};
+    throw new Error("Unable to get Packaging Material details");
   }
 };
 
@@ -163,8 +157,7 @@ export const updatePackagingMaterialDetails = async (packagingMaterial) => {
     );
     return response.data;
   } catch (error) {
-    console.error({ layer: "USER-SERVICE", error: error.message });
-    return {};
+    throw new Error("Unable to update Packaging Material");
   }
 };
 
@@ -184,7 +177,6 @@ export const updateStation = async (station) => {
     const response = await axios.patch(`${BASE_URL}/stations/update`, station);
     return response.data;
   } catch (error) {
-    console.error({ layer: "SYSTEM-CONFIG-SERVICE", error: error.message });
-    return {};
+    throw new Error("Unable to update Station");
   }
 };
